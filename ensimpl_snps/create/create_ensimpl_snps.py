@@ -71,7 +71,7 @@ def parseSNPs(db, reference):
     """Create ensimpl database(s).
 
     Args:
-        db (list): All Ensembl versions to create, ``None`` for all.
+        db (str): Ensembl databse.
         reference (EnsemblReference): Reference information for the Ensembl
             information.
     """
@@ -93,7 +93,7 @@ def parseSNPs(db, reference):
                 ensimpl_db.insert_snps(db, snps)
                 snps = []
 
-        ensimpl_db.insert_snps(ensimpl_db, snps)
+        ensimpl_db.insert_snps(db, snps)
     except Exception as e:
         print(str(e))
         LOG.error('Unable to parse file: {}'.format(reference.vcf_file[7:]))
@@ -158,12 +158,12 @@ def create(ensembl, species, directory, resource):
     
                 LOG.info('Creating: {}'.format(ensimpl_file))
                 ensimpl_db.initialize(ensimpl_file)
-    
+
                 LOG.info('Extracting and inserting snps...')
                 parseSNPs(ensimpl_file, ensembl_reference)
     
                 LOG.info('Finalizing...')
-                ensimpl_db.finalize(ensimpl_file, release_value)
+                ensimpl_db.finalize(ensimpl_file, ensembl_reference)
 
         LOG.info('DONE')
 

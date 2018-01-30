@@ -70,7 +70,7 @@ def finalize(db, ref):
      Args:
         db (str): Name of the database file.
 
-        ref (:obj:`ensimpl.create.create_ensimpl.EnsemblReference`):
+        ref (:obj:`ensimpl_snps.create.create_ensimpl.EnsemblReference`):
             Contains information about the Ensembl reference.
      """
     start = time.time()
@@ -85,7 +85,6 @@ def finalize(db, ref):
     meta_data.append(('version', ref.version, ref.species_id))
     meta_data.append(('assembly', ref.assembly, ref.species_id))
     meta_data.append(('assembly_patch', ref.assembly_patch, ref.species_id))
-
 
     cursor.executemany(sql_meta_insert, meta_data)
 
