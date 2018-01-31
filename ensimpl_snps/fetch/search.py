@@ -1,6 +1,7 @@
 # -*- coding: utf_8 -*-
 import re
 import sqlite3
+import time
 
 import ensimpl_snps.utils as utils
 import ensimpl_snps.fetch.utils as fetch_utils
@@ -136,6 +137,11 @@ def by_region(region, version, species, limit=None):
         ]
         parameters.extend(list(bins))
 
+        LOG.info('Query: {}'.format(SQL_QUERY))
+        LOG.info('Parameters: {}'.format(parameters))
+
+        start_time = time.time()
+
         snps = []
         for row in cursor.execute(SQL_QUERY, parameters):
             snps.append([
@@ -145,6 +151,8 @@ def by_region(region, version, species, limit=None):
                 row['ref'],
                 row['alt']
             ])
+
+        LOG.info('Done: {}'.format(utils.format_time(start_time, time.time())))
 
         cursor.close()
         conn.close()
