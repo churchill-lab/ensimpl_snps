@@ -93,6 +93,7 @@ def parseSNPs(db, reference):
                 ensimpl_db.insert_snps(db, snps)
                 snps = []
 
+        LOG.debug('Inserting last bit of SNPs: {:,}'.format(len(snps)))
         ensimpl_db.insert_snps(db, snps)
     except Exception as e:
         print(str(e))

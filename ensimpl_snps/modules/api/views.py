@@ -216,8 +216,6 @@ def region():
         ret['num_snps'] = len(snps)
         ret['snps'] = snps
 
-        print(ret)
-
     except Exception as e:
         response = jsonify(message=str(e))
         response.status_code = 500
