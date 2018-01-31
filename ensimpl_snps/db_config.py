@@ -3,11 +3,12 @@ import glob
 import os
 import sys
 
-from ensimpl_snps.utils import multikeysort
+import ensimpl_snps.utils as utils
 
 ENSIMPL_SNPS_DB_NAME = 'ensimpl_snps.*.db3'
 ENSIMPL_SNPS_DBS = None
 ENSIMPL_SNPS_DB_DICT = None
+
 
 
 def get_ensimpl_snp_db(version, species):
@@ -63,7 +64,7 @@ def get_all_ensimpl_snps_dbs(directory):
 
     # sort the databases in descending order by version and than species for
     # readability in the API
-    all_sorted_dbs = multikeysort(db_list, ['-version', 'species'])
+    all_sorted_dbs = utils.multikeysort(db_list, ['-version', 'species'])
 
     global ENSIMPL_SNPS_DBS
     ENSIMPL_SNPS_DBS = all_sorted_dbs
@@ -82,6 +83,7 @@ def init(directory=None):
             ``ENSIMPL_SNPS_DIR`` will be used.
     """
     ensimpl_snps_dir = os.environ.get('ENSIMPL_SNPS_DIR', None)
+
 
     if directory:
         ensimpl_snps_dir = directory
@@ -105,3 +107,5 @@ def init(directory=None):
         sys.exit()
 
     get_all_ensimpl_snps_dbs(ensimpl_dir)
+
+

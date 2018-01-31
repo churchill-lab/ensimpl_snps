@@ -13,6 +13,7 @@ import os
 import random
 import string
 
+import flask
 
 logging.basicConfig(format='[ENsimpl] [%(asctime)s] %(message)s',
                     datefmt='%m/%d/%Y %I:%M:%S %p')
@@ -144,6 +145,9 @@ def get_logger():
     Returns:
         logging.Logger: The logging object.
     """
+    if flask.current_app:
+        return flask.current_app.logger
+
     return logging.getLogger(__name__)
 
 

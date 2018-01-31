@@ -6,8 +6,6 @@ import time
 import ensimpl_snps.utils as utils
 import ensimpl_snps.fetch.utils as fetch_utils
 
-LOG = utils.get_logger()
-
 REGEX_SNP_ID = re.compile("rs[0-9]{1,}", re.IGNORECASE)
 REGEX_REGION = re.compile("(CHR|)*\s*([0-9]{1,2}|X|Y|MT)\s*(-|:)?\s*(\d+)\s*(MB|M|K|)?\s*(-|:|)?\s*(\d+|)\s*(MB|M|K|)?", re.IGNORECASE)
 
@@ -26,6 +24,7 @@ def by_ids(ids, version, species):
     Raises:
         ValueError: When `ids` is empty.
     """
+    LOG = utils.get_logger()
     LOG.debug('ids={} ...'.format(ids[0:max(len(ids), 10)]))
     LOG.debug('version={}'.format(version))
     LOG.debug('species={}'.format(species))
@@ -58,7 +57,6 @@ def by_ids(ids, version, species):
                      ' ORDER BY s.chrom, s.pos').format(temp_table)
 
         LOG.info('Query: {}'.format(SQL_QUERY))
-        LOG.info('Parameters: {}'.format(parameters))
 
         start_time = time.time()
 
@@ -111,6 +109,8 @@ def by_region(region, version, species, limit=None):
     Raises:
         ValueError: When `region` is empty.
     """
+    LOG = utils.get_logger()
+
     LOG.debug('range={}'.format(region))
     LOG.debug('version={}'.format(version))
     LOG.debug('species_id={}'.format(species))

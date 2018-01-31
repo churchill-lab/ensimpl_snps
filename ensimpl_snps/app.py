@@ -11,6 +11,7 @@ from ensimpl_snps.extensions import debug_toolbar
 from ensimpl_snps.modules.api.views import api
 from ensimpl_snps.modules.page.views import page
 from ensimpl_snps.utils import ReverseProxied
+from ensimpl_snps.utils import configure_logging
 
 
 def create_app(settings_override=None):
@@ -36,6 +37,7 @@ def create_app(settings_override=None):
         app.config.update(settings_override)
 
     db_config.init()
+    configure_logging()
 
     app.logger.setLevel(app.config['LOG_LEVEL'])
 
