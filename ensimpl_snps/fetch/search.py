@@ -140,7 +140,7 @@ def by_region(region, version, species, limit=None):
                              new_region.start_position,
                              new_region.end_position,
                              parser=pysam.asTuple()):
-            snps.append(list(row))
+            snps.append(list(row[:5]))
 
         LOG.info('Done: {}'.format(utils.format_time(start_time, time.time())))
 
