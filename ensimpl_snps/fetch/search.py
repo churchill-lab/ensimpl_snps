@@ -57,6 +57,11 @@ def by_ids(ids, version, species):
                      ' WHERE s.snp_id IN (SELECT distinct query_id FROM {}) '
                      ' ORDER BY s.chrom, s.pos').format(temp_table)
 
+        LOG.info('Query: {}'.format(SQL_QUERY))
+        LOG.info('Parameters: {}'.format(parameters))
+
+        start_time = time.time()
+
         snps = []
         snp_ids = []
         for row in cursor.execute(SQL_QUERY):
@@ -68,6 +73,8 @@ def by_ids(ids, version, species):
                 row['alt']
             ])
             snp_ids.append(row['snp_id'])
+
+        LOG.info('Done: {}'.format(utils.format_time(start_time, time.time())))
 
         cursor.close()
         conn.close()
