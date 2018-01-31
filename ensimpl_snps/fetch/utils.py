@@ -1,4 +1,5 @@
 # -*- coding: utf_8 -*-
+import os
 import re
 import sqlite3
 
@@ -58,10 +59,28 @@ def connect_to_database(version, species):
         a connection to the database
     """
     try:
+
         database = db_config.get_ensimpl_snp_db(version, species)['db']
         return sqlite3.connect(database)
     except Exception as e:
         LOG.error('Error connecting to database: {}'.format(str(e)))
+        raise e
+
+
+def get_tabix_file(version, species):
+    """Get the tabix file.
+
+    Args:
+        version (int): The Ensembl version number.
+        species (str): The Ensembl species identifier.
+
+    Returns:
+        str: A file location.
+    """
+    try:
+        return db_config.get_ensimpl_snp_db(version, species)['vcf']
+    except Exception as e:
+        LOG.error('Error finding vcf file: {}'.format(str(e)))
         raise e
 
 

@@ -3,6 +3,8 @@ import re
 import sqlite3
 import time
 
+import pysam
+
 import ensimpl_snps.utils as utils
 import ensimpl_snps.fetch.utils as fetch_utils
 
@@ -111,58 +113,36 @@ def by_region(region, version, species, limit=None):
     """
     LOG = utils.get_logger()
 
+    LOG.debug(sqlite3.version_info)
+    LOG.debug(sqlite3.version)
+
     LOG.debug('range={}'.format(region))
     LOG.debug('version={}'.format(version))
     LOG.debug('species_id={}'.format(species))
     LOG.debug('limit={}'.format(limit))
 
+
     try:
-        conn = fetch_utils.connect_to_database(version, species)
-        conn.row_factory = sqlite3.Row
-        cursor = conn.cursor()
 
         if not region:
             raise ValueError('no ids were passed in')
 
         new_region = fetch_utils.str_to_region(region)
-        bins = utils.bins(new_region.start_position,
-                          new_region.end_position,
-                          one=False)
 
-        SQL_QUERY = ('SELECT s.* '
-                     '  FROM snps s '
-                     ' WHERE s.chrom = ? '
-                     '   AND s.pos >= ? '
-                     '   AND s.pos <= ? '
-                     '   AND s.bin IN ({}) '
-                     ' ORDER BY s.pos').format(','.join('?'*len(bins)))
+        tabix_file = fetch_utils.get_tabix_file(version, species)
+        tbx = pysam.TabixFile(tabix_file)
 
-        parameters = [
-            new_region.chromosome,
-            new_region.start_position,
-            new_region.end_position
-        ]
-        parameters.extend(list(bins))
-
-        LOG.info('Query: {}'.format(SQL_QUERY))
-        LOG.info('Parameters: {}'.format(parameters))
 
         start_time = time.time()
 
         snps = []
-        for row in cursor.execute(SQL_QUERY, parameters):
-            snps.append([
-                row['chrom'],
-                row['pos'],
-                row['snp_id'],
-                row['ref'],
-                row['alt']
-            ])
+        for row in tbx.fetch('{}'.format(new_region.chromosome),
+                             new_region.start_position,
+                             new_region.end_position,
+                             parser=pysam.asTuple()):
+            snps.append(list(row))
 
         LOG.info('Done: {}'.format(utils.format_time(start_time, time.time())))
-
-        cursor.close()
-        conn.close()
 
         return snps
     except Exception as e:

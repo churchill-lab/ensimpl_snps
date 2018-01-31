@@ -50,7 +50,7 @@ def insert_snps(db, snps):
     conn = sqlite3.connect(db)
 
     sql_snps_insert = ('INSERT INTO snps '
-                       'VALUES (?, ?, ?, ?, ?, ?)')
+                       'VALUES (?, ?, ?, ?, ?)')
 
     cursor = conn.cursor()
     LOG.debug('Inserting {:,} snps...'.format(len(snps)))
@@ -138,16 +138,15 @@ SQL_CREATE_TABLES = ['''
        pos INTEGER NOT NULL,
        snp_id TEXT NOT NULL,
        ref TEXT,
-       alt TEXT,
-       bin INTEGER NOT NULL
+       alt TEXT
     );
 ''']
 
 SQL_INDICES = [
-    'CREATE INDEX IF NOT EXISTS idx_snps_chrom ON snps (chrom ASC);',
-    'CREATE INDEX IF NOT EXISTS idx_snps_pos ON snps (pos ASC);',
+#    'CREATE INDEX IF NOT EXISTS idx_snps_chrom ON snps (chrom ASC);',
+#    'CREATE INDEX IF NOT EXISTS idx_snps_pos ON snps (pos ASC);',
     'CREATE INDEX IF NOT EXISTS idx_snps_id ON snps (snp_id ASC);',
-    'CREATE INDEX IF NOT EXISTS idx_snps_bin ON snps (bin ASC);',
+#    'CREATE INDEX IF NOT EXISTS idx_snps_bin ON snps (bin ASC);',
 ]
 
 SQL_SELECT_FINAL_INFO = [
@@ -159,17 +158,4 @@ SELECT distinct meta_key meta_key, meta_value, species_id
 ]
 
 SQL_SELECT_CHECKS = [
-   '''
-SELECT count(1), snp_id 
-  FROM snps 
- GROUP BY snp_id 
-HAVING count(1) > 1
-   ''',
-   '''
-SELECT count(1), chrom, pos 
-  FROM snps 
- GROUP BY chrom, pos 
-HAVING count(1) > 1
-   '''
-
 ]

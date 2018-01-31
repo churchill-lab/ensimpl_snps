@@ -8,7 +8,7 @@ import ensimpl_snps.utils as utils
 ENSIMPL_SNPS_DB_NAME = 'ensimpl_snps.*.db3'
 ENSIMPL_SNPS_DBS = None
 ENSIMPL_SNPS_DB_DICT = None
-
+ENSIMPL_SNPS_DIR = None
 
 
 def get_ensimpl_snp_db(version, species):
@@ -36,40 +36,63 @@ def get_ensimpl_snp_db(version, species):
         raise ValueError('Unable to find version "{}" and species "{}"'.format(version, species))
 
 
-def get_all_ensimpl_snps_dbs(directory):
+def get_all_ensimpl_snps_dbs(top_dir):
     """Configure the list of ensimpl snp db files in `directory`.  This will
     set values for :data:`ENSIMPL_SNPS_DBS` and :data:`ENSIMPL_SNPS_DBS_DICT`.
 
     Args:
-        directory (str): The directory path.
+        top_dir (str): The directory path.
     """
-    databases = glob.glob(os.path.join(directory, ENSIMPL_SNPS_DB_NAME))
+    version_dict = {}
+    for directory in sorted(os.listdir(top_dir)):
+        d = os.path.abspath(os.path.join(top_dir, directory))
+        if os.path.isdir(d):
+            files_in_dir = []
+            for file in sorted(os.listdir(d)):
+                f = os.path.abspath(os.path.join(d, file))
+                if os.path.isfile(f):
+                    files_in_dir.append(f)
+            if len(files_in_dir):
+                version = files_in_dir[0].split('/')[-2]
+                for file in files_in_dir:
+                    elems = file.split('/')
+                    if file[-4:] == '.db3':
+                        species = elems[-1].split('.')[-2]
+                        k = '{}:{}'.format(version, species)
+                        temp = version_dict.get(k, {})
+                        temp['db'] = file
+                        temp['species'] = species
+                        temp['version'] = version
+                        version_dict[k] = temp
 
-    db_list = []
-    db_dict = {}
 
-    for db in databases:
-        # db should be a string consisting of the following elements:
-        # 'ensimpl_snps', version, species, 'db3'
-        val = {
-            'version': int(db.split('.')[1]),
-            'species': db.split('.')[2],
-            'db': db
-        }
-        db_list.append(val)
-
-        # combined key will be 'version:species'
-        combined_key = '{}:{}'.format(val['version'], val['species'])
-        db_dict[combined_key] = val
+                    elif file[-3:] == '.gz':
+                        if 'musculus' in file.lower():
+                            k = '{}:Mm'.format(version)
+                            temp = version_dict.get(k, {})
+                            temp['vcf'] = file
+                            temp['species'] = 'Mm'
+                            temp['version'] = version
+                            version_dict[k] = temp
+                        elif 'sapiens' in file.lower():
+                            k = '{}:Hs'.format(version)
+                            temp = version_dict.get(k, {})
+                            temp['vcf'] = file
+                            temp['species'] = 'Mm'
+                            temp['version'] = version
+                            version_dict[k] = temp
 
     # sort the databases in descending order by version and than species for
     # readability in the API
-    all_sorted_dbs = utils.multikeysort(db_list, ['-version', 'species'])
+    all_sorted_dbs = utils.multikeysort(version_dict.values(),
+                                        ['-version', 'species'])
 
     global ENSIMPL_SNPS_DBS
     ENSIMPL_SNPS_DBS = all_sorted_dbs
     global ENSIMPL_SNPS_DB_DICT
-    ENSIMPL_SNPS_DB_DICT = db_dict
+    ENSIMPL_SNPS_DB_DICT = version_dict
+    global ENSIMPL_SNPS_DIR
+    ENSIMPL_SNPS_DIR = os.path.abspath(directory)
 
 
 def init(directory=None):

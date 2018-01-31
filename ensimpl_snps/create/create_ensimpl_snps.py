@@ -83,8 +83,7 @@ def parseSNPs(db, reference):
         idx = 0
         for rec in vcf_in.fetch():
             snps.append([rec.contig, rec.pos, rec.id, rec.ref,
-                         ','.join(rec.alts) if rec.alts else '',
-                         utils.bins(rec.pos, rec.pos+1, one=True)])
+                         ','.join(rec.alts) if rec.alts else ''])
 
             idx += 1
 
